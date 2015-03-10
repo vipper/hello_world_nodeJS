@@ -5,6 +5,7 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 var app = express();
+var error = require('./middleware/error');
 
 app.set('views', __dirname+'/views');
 app.set('view engine', 'ejs');
@@ -23,7 +24,6 @@ app.use(methodOverride(function(req, res){
   }
 }));
 
-
 app.use(express.static(__dirname+'/public'));
 
 load('models')
@@ -31,6 +31,8 @@ load('models')
     .then('routes')
     .into(app);
 
+app.use(error.notFound);
+app.use(error.serverError);
 
 app.listen(3000, function() {
     console.log("Ntalk no ar");
