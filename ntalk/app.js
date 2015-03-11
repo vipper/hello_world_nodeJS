@@ -6,6 +6,8 @@ var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 var app = express();
 var error = require('./middleware/error');
+var server = require('http').createServer(app);
+var io = require('socket.io').listen(server);
 
 app.set('views', __dirname+'/views');
 app.set('view engine', 'ejs');
@@ -34,6 +36,16 @@ load('models')
 app.use(error.notFound);
 app.use(error.serverError);
 
-app.listen(3000, function() {
+
+io.sockets.on('connection', function(client) {
+  client.on('send-server', function(data) {
+    var msg = "<b>" + data.nome + ":</b> " + data.msg + "<br>";
+    client.emit('send-client', msg);
+    client.broadcast.emit('send-client', msg); 
+  });
+});
+
+
+server.listen(3000, function() {
     console.log("Ntalk no ar");
 });
