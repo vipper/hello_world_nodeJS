@@ -19,7 +19,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(methodOverride(function(req, res){
   if (req.body && typeof req.body === 'object' && '_method' in req.body) {
-    // look in urlencoded POST bodies and delete it
     var method = req.body._method
     delete req.body._method
     return method
@@ -36,15 +35,8 @@ load('models')
 app.use(error.notFound);
 app.use(error.serverError);
 
-
-io.sockets.on('connection', function(client) {
-  client.on('send-server', function(data) {
-    var msg = "<b>" + data.nome + ":</b> " + data.msg + "<br>";
-    client.emit('send-client', msg);
-    client.broadcast.emit('send-client', msg); 
-  });
-});
-
+load('sockets')
+    .into(io);
 
 server.listen(3000, function() {
     console.log("Ntalk no ar");
