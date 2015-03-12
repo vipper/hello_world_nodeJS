@@ -1,20 +1,29 @@
-var express = require('express');
-var load = require('express-load');
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
-var bodyParser = require('body-parser');
-var methodOverride = require('method-override');
-var app = express();
-var error = require('./middleware/error');
-var server = require('http').createServer(app);
-var io = require('socket.io').listen(server);
+var express = require('express'),
+    load = require('express-load'),
+    cookieParser = require('cookie-parser'),
+    session = require('express-session'),
+    bodyParser = require('body-parser'),
+    methodOverride = require('method-override'),
+    app = express(),
+    error = require('./middleware/error'),
+    server = require('http').createServer(app),
+    io = require('socket.io').listen(server);
+const KEY = 'ntalk.sid', SECRET = 'ntalk';
+var cookie = cookieParser(SECRET),
+    store = new session.MemoryStore(),
+    sessOpts = {
+      secret: SECRET, 
+      key: KEY, 
+      store: store, 
+      saveUninitialized: true, 
+      resave: true
+    },
+    session = session(sessOpts);
 
 app.set('views', __dirname+'/views');
 app.set('view engine', 'ejs');
-app.use(cookieParser('nTalk'));
-app.use(session({secret: '<mysecret>', 
-                 saveUninitialized: true,
-                 resave: true}));
+app.use(cookie);
+app.use(session);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(methodOverride(function(req, res){
