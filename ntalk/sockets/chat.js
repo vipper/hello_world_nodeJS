@@ -8,10 +8,9 @@ module.exports = function(io) {
     ;
 
     client.on('join', function(sala) {
-      if(!sala) {
-        var timestamp = new Date().toString()
-          , md5 = crypto.createHash('md5')
-        ;
+      if(!sala || sala == 'undefined') {
+        var timestamp = new Date().toString();
+        var md5 = crypto.createHash('md5');
         sala = md5.update(timestamp).digest('hex');
       }
       session.sala = sala;
@@ -21,7 +20,6 @@ module.exports = function(io) {
     client.on('disconnect', function () {
       var sala = session.sala
         , msg = "<b>"+ usuario.nome +":</b> saiu.<br>";
-      client.broadcast.emit('notify-offlines', usuario.email);
       sockets.in(sala).emit('send-client', msg);
       client.leave(sala);
     }); 
